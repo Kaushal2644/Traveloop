@@ -82,9 +82,9 @@ const Dashboard = () => {
     <div className="p-8 max-w-6xl mx-auto">
       {/* Hero banner */}
       <div className="rounded-2xl bg-gradient-to-br from-[#2A9D8F] to-[#21867a] p-8 mb-8 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
-        />
+        <div className="absolute inset-0 opacity-10 pointer-events-none"
+  style={{ backgroundImage: "radial-gradient(circle at 80% 20%, white 1px, transparent 1px)", backgroundSize: "24px 24px" }}
+/>
         <p className="text-teal-100 text-sm flex items-center gap-1.5 mb-2">
           <MapPin size={14} /> Your next adventure awaits
         </p>

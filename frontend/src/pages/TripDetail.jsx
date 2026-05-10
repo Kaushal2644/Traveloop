@@ -43,7 +43,7 @@ export default function TripDetail() {
 
   // Packing
   const [newItem, setNewItem] = useState("");
-  const [newCategory, setNewCategory] = useState("General");
+  const [newCategory, setNewCategory] = useState("other");
 
   // Notes
   const [noteForm, setNoteForm] = useState({ title: "", content: "", date: "" });
@@ -173,7 +173,11 @@ export default function TripDetail() {
   // ── PACKING ──
   const addPackingItem = async () => {
     if (!newItem.trim()) return;
-    await api.post("/packing", { trip: id, item: newItem.trim(), category: newCategory });
+    await api.post("/packing", {
+      trip: id,
+      name: newItem.trim(),
+      category: newCategory,
+    });
     setNewItem("");
     fetchAll();
   };
@@ -244,7 +248,9 @@ export default function TripDetail() {
           <button
             onClick={togglePublic}
             className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-medium transition ${
-              isPublic ? "bg-white text-teal-700" : "bg-white/20 text-white border border-white/30"
+              isPublic
+                ? "bg-white text-teal-700"
+                : "bg-white/20 text-white border border-white/30"
             }`}
           >
             <Globe size={12} />
@@ -259,9 +265,17 @@ export default function TripDetail() {
           <div className="flex items-center gap-3 text-white/80 text-xs mt-0.5">
             <span className="flex items-center gap-1">
               <Calendar size={11} />
-              {new Date(trip.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+              {new Date(trip.startDate).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
               {" – "}
-              {new Date(trip.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+              {new Date(trip.endDate).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}
             </span>
             <span className="flex items-center gap-1">
               <Wallet size={11} /> ₹{(trip.budget || 0).toLocaleString("en-IN")}
@@ -290,22 +304,44 @@ export default function TripDetail() {
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-6">
-
         {/* ── ITINERARY TAB ── */}
         {tab === "Itinerary" && (
           <div className="space-y-4">
             {/* Map */}
-            {stops.some(s => s.latitude && s.longitude) && (
-              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100" style={{ height: 280 }}>
-                <MapContainer center={mapCenter} zoom={5} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="© OpenStreetMap" />
-                  {stops.filter(s => s.latitude && s.longitude).map((stop) => (
-                    <Marker key={stop._id} position={[stop.latitude, stop.longitude]}>
-                      <Popup>{stop.city}, {stop.country}</Popup>
-                    </Marker>
-                  ))}
+            {stops.some((s) => s.latitude && s.longitude) && (
+              <div
+                className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100"
+                style={{ height: 280 }}
+              >
+                <MapContainer
+                  center={mapCenter}
+                  zoom={5}
+                  style={{ height: "100%", width: "100%" }}
+                  scrollWheelZoom={false}
+                >
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution="© OpenStreetMap"
+                  />
+                  {stops
+                    .filter((s) => s.latitude && s.longitude)
+                    .map((stop) => (
+                      <Marker
+                        key={stop._id}
+                        position={[stop.latitude, stop.longitude]}
+                      >
+                        <Popup>
+                          {stop.city}, {stop.country}
+                        </Popup>
+                      </Marker>
+                    ))}
                   {polylinePoints.length > 1 && (
-                    <Polyline positions={polylinePoints} color="#2A9D8F" weight={2} dashArray="6,6" />
+                    <Polyline
+                      positions={polylinePoints}
+                      color="#2A9D8F"
+                      weight={2}
+                      dashArray="6,6"
+                    />
                   )}
                 </MapContainer>
               </div>
@@ -330,25 +366,79 @@ export default function TripDetail() {
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-3">
                 <p className="text-sm font-medium text-gray-700">New Stop</p>
                 <div className="grid grid-cols-2 gap-3">
-                  <input className="input-field" placeholder="City *" value={stopForm.city}
-                    onChange={e => setStopForm({ ...stopForm, city: e.target.value })} />
-                  <input className="input-field" placeholder="Country" value={stopForm.country}
-                    onChange={e => setStopForm({ ...stopForm, country: e.target.value })} />
-                  <input type="date" className="input-field" placeholder="Start Date" value={stopForm.startDate}
-                    onChange={e => setStopForm({ ...stopForm, startDate: e.target.value })} />
-                  <input type="date" className="input-field" placeholder="End Date" value={stopForm.endDate}
-                    onChange={e => setStopForm({ ...stopForm, endDate: e.target.value })} />
-                  <input className="input-field" placeholder="Latitude (e.g. 48.8566)" value={stopForm.lat}
-                    onChange={e => setStopForm({ ...stopForm, lat: e.target.value })} />
-                  <input className="input-field" placeholder="Longitude (e.g. 2.3522)" value={stopForm.lng}
-                    onChange={e => setStopForm({ ...stopForm, lng: e.target.value })} />
-                  <input type="number" className="input-field col-span-2" placeholder="Estimated Cost (₹)" value={stopForm.cost}
-                    onChange={e => setStopForm({ ...stopForm, cost: e.target.value })} />
+                  <input
+                    className="input-field"
+                    placeholder="City *"
+                    value={stopForm.city}
+                    onChange={(e) =>
+                      setStopForm({ ...stopForm, city: e.target.value })
+                    }
+                  />
+                  <input
+                    className="input-field"
+                    placeholder="Country"
+                    value={stopForm.country}
+                    onChange={(e) =>
+                      setStopForm({ ...stopForm, country: e.target.value })
+                    }
+                  />
+                  <input
+                    type="date"
+                    className="input-field"
+                    placeholder="Start Date"
+                    value={stopForm.startDate}
+                    onChange={(e) =>
+                      setStopForm({ ...stopForm, startDate: e.target.value })
+                    }
+                  />
+                  <input
+                    type="date"
+                    className="input-field"
+                    placeholder="End Date"
+                    value={stopForm.endDate}
+                    onChange={(e) =>
+                      setStopForm({ ...stopForm, endDate: e.target.value })
+                    }
+                  />
+                  <input
+                    className="input-field"
+                    placeholder="Latitude (e.g. 48.8566)"
+                    value={stopForm.lat}
+                    onChange={(e) =>
+                      setStopForm({ ...stopForm, lat: e.target.value })
+                    }
+                  />
+                  <input
+                    className="input-field"
+                    placeholder="Longitude (e.g. 2.3522)"
+                    value={stopForm.lng}
+                    onChange={(e) =>
+                      setStopForm({ ...stopForm, lng: e.target.value })
+                    }
+                  />
+                  <input
+                    type="number"
+                    className="input-field col-span-2"
+                    placeholder="Estimated Cost (₹)"
+                    value={stopForm.cost}
+                    onChange={(e) =>
+                      setStopForm({ ...stopForm, cost: e.target.value })
+                    }
+                  />
                 </div>
                 <div className="flex gap-2 justify-end">
-                  <button onClick={() => setShowStopForm(false)} className="text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50">Cancel</button>
-                  <button onClick={addStop} disabled={stopLoading}
-                    className="text-sm px-4 py-1.5 rounded-lg text-white font-medium" style={{ backgroundColor: "#2A9D8F" }}>
+                  <button
+                    onClick={() => setShowStopForm(false)}
+                    className="text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={addStop}
+                    disabled={stopLoading}
+                    className="text-sm px-4 py-1.5 rounded-lg text-white font-medium"
+                    style={{ backgroundColor: "#2A9D8F" }}
+                  >
                     {stopLoading ? "Adding..." : "Add Stop"}
                   </button>
                 </div>
@@ -364,32 +454,66 @@ export default function TripDetail() {
             )}
 
             {stops.map((stop, idx) => (
-              <div key={stop._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+              <div
+                key={stop._id}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+              >
                 {/* Stop Header */}
                 <div className="flex items-center justify-between px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
-                      style={{ backgroundColor: "#2A9D8F" }}>{idx + 1}</div>
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                      style={{ backgroundColor: "#2A9D8F" }}
+                    >
+                      {idx + 1}
+                    </div>
                     <div>
-                      <p className="font-semibold text-gray-800">{stop.city}{stop.country ? `, ${stop.country}` : ""}</p>
+                      <p className="font-semibold text-gray-800">
+                        {stop.city}
+                        {stop.country ? `, ${stop.country}` : ""}
+                      </p>
                       {(stop.startDate || stop.endDate) && (
                         <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
                           <Calendar size={10} />
-                          {stop.startDate && new Date(stop.startDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                          {stop.startDate &&
+                            new Date(stop.startDate).toLocaleDateString(
+                              "en-IN",
+                              { day: "numeric", month: "short" },
+                            )}
                           {stop.startDate && stop.endDate && " – "}
-                          {stop.endDate && new Date(stop.endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                          {stop.endDate &&
+                            new Date(stop.endDate).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                            })}
                         </p>
                       )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-teal-700">₹{(stop.totalCost || 0).toLocaleString("en-IN")}</span>
-                    <button onClick={() => deleteStop(stop._id)} className="text-gray-300 hover:text-red-400 transition">
+                    <span className="text-sm font-medium text-teal-700">
+                      ₹{(stop.totalCost || 0).toLocaleString("en-IN")}
+                    </span>
+                    <button
+                      onClick={() => deleteStop(stop._id)}
+                      className="text-gray-300 hover:text-red-400 transition"
+                    >
                       <Trash2 size={15} />
                     </button>
-                    <button onClick={() => setExpandedStops(p => ({ ...p, [stop._id]: !p[stop._id] }))}
-                      className="text-gray-400 hover:text-gray-600 transition">
-                      {expandedStops[stop._id] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    <button
+                      onClick={() =>
+                        setExpandedStops((p) => ({
+                          ...p,
+                          [stop._id]: !p[stop._id],
+                        }))
+                      }
+                      className="text-gray-400 hover:text-gray-600 transition"
+                    >
+                      {expandedStops[stop._id] ? (
+                        <ChevronUp size={16} />
+                      ) : (
+                        <ChevronDown size={16} />
+                      )}
                     </button>
                   </div>
                 </div>
@@ -398,16 +522,37 @@ export default function TripDetail() {
                 {expandedStops[stop._id] && (
                   <div className="border-t border-gray-50 px-5 py-3 space-y-2">
                     {(activities[stop._id] || []).map((act) => (
-                      <div key={act._id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                      <div
+                        key={act._id}
+                        className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
+                      >
                         <div className="flex items-center gap-2">
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 capitalize">{act.category}</span>
-                          <span className="text-sm text-gray-700">{act.name}</span>
-                          {act.time && <span className="text-xs text-gray-400 flex items-center gap-0.5"><Clock size={10}/>{act.time}</span>}
-                          {act.duration && <span className="text-xs text-gray-400">{act.duration}h</span>}
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 capitalize">
+                            {act.category}
+                          </span>
+                          <span className="text-sm text-gray-700">
+                            {act.name}
+                          </span>
+                          {act.time && (
+                            <span className="text-xs text-gray-400 flex items-center gap-0.5">
+                              <Clock size={10} />
+                              {act.time}
+                            </span>
+                          )}
+                          {act.duration && (
+                            <span className="text-xs text-gray-400">
+                              {act.duration}h
+                            </span>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-gray-600">₹{(act.cost || 0).toLocaleString("en-IN")}</span>
-                          <button onClick={() => deleteActivity(act._id)} className="text-gray-300 hover:text-red-400 transition">
+                          <span className="text-sm text-gray-600">
+                            ₹{(act.cost || 0).toLocaleString("en-IN")}
+                          </span>
+                          <button
+                            onClick={() => deleteActivity(act._id)}
+                            className="text-gray-300 hover:text-red-400 transition"
+                          >
                             <Trash2 size={13} />
                           </button>
                         </div>
@@ -418,12 +563,35 @@ export default function TripDetail() {
                     {showActivityForm[stop._id] ? (
                       <div className="space-y-2 pt-2">
                         <div className="grid grid-cols-2 gap-2">
-                          <input className="input-field" placeholder="Activity name *"
+                          <input
+                            className="input-field"
+                            placeholder="Activity name *"
                             value={activityForm[stop._id]?.name || ""}
-                            onChange={e => setActivityForm(p => ({ ...p, [stop._id]: { ...p[stop._id], name: e.target.value } }))} />
-                          <select className="input-field"
-                            value={activityForm[stop._id]?.category || "sightseeing"}
-                            onChange={e => setActivityForm(p => ({ ...p, [stop._id]: { ...p[stop._id], category: e.target.value } }))}>
+                            onChange={(e) =>
+                              setActivityForm((p) => ({
+                                ...p,
+                                [stop._id]: {
+                                  ...p[stop._id],
+                                  name: e.target.value,
+                                },
+                              }))
+                            }
+                          />
+                          <select
+                            className="input-field"
+                            value={
+                              activityForm[stop._id]?.category || "sightseeing"
+                            }
+                            onChange={(e) =>
+                              setActivityForm((p) => ({
+                                ...p,
+                                [stop._id]: {
+                                  ...p[stop._id],
+                                  category: e.target.value,
+                                },
+                              }))
+                            }
+                          >
                             <option value="sightseeing">Sightseeing</option>
                             <option value="food">Food</option>
                             <option value="culture">Culture</option>
@@ -432,21 +600,68 @@ export default function TripDetail() {
                             <option value="accommodation">Accommodation</option>
                             <option value="other">Other</option>
                           </select>
-                          <input type="time" className="input-field"
+                          <input
+                            type="time"
+                            className="input-field"
                             value={activityForm[stop._id]?.time || ""}
-                            onChange={e => setActivityForm(p => ({ ...p, [stop._id]: { ...p[stop._id], time: e.target.value } }))} />
-                          <input type="number" className="input-field" placeholder="Duration (hrs)"
+                            onChange={(e) =>
+                              setActivityForm((p) => ({
+                                ...p,
+                                [stop._id]: {
+                                  ...p[stop._id],
+                                  time: e.target.value,
+                                },
+                              }))
+                            }
+                          />
+                          <input
+                            type="number"
+                            className="input-field"
+                            placeholder="Duration (hrs)"
                             value={activityForm[stop._id]?.duration || ""}
-                            onChange={e => setActivityForm(p => ({ ...p, [stop._id]: { ...p[stop._id], duration: e.target.value } }))} />
-                          <input type="number" className="input-field col-span-2" placeholder="Cost (₹)"
+                            onChange={(e) =>
+                              setActivityForm((p) => ({
+                                ...p,
+                                [stop._id]: {
+                                  ...p[stop._id],
+                                  duration: e.target.value,
+                                },
+                              }))
+                            }
+                          />
+                          <input
+                            type="number"
+                            className="input-field col-span-2"
+                            placeholder="Cost (₹)"
                             value={activityForm[stop._id]?.cost || ""}
-                            onChange={e => setActivityForm(p => ({ ...p, [stop._id]: { ...p[stop._id], cost: e.target.value } }))} />
+                            onChange={(e) =>
+                              setActivityForm((p) => ({
+                                ...p,
+                                [stop._id]: {
+                                  ...p[stop._id],
+                                  cost: e.target.value,
+                                },
+                              }))
+                            }
+                          />
                         </div>
                         <div className="flex gap-2 justify-end">
-                          <button onClick={() => setShowActivityForm(p => ({ ...p, [stop._id]: false }))}
-                            className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600">Cancel</button>
-                          <button onClick={() => addActivity(stop._id)}
-                            className="text-xs px-3 py-1.5 rounded-lg text-white" style={{ backgroundColor: "#2A9D8F" }}>
+                          <button
+                            onClick={() =>
+                              setShowActivityForm((p) => ({
+                                ...p,
+                                [stop._id]: false,
+                              }))
+                            }
+                            className="text-xs px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => addActivity(stop._id)}
+                            className="text-xs px-3 py-1.5 rounded-lg text-white"
+                            style={{ backgroundColor: "#2A9D8F" }}
+                          >
                             Add Activity
                           </button>
                         </div>
@@ -454,8 +669,11 @@ export default function TripDetail() {
                     ) : (
                       <button
                         onClick={() => {
-                          setExpandedStops(p => ({ ...p, [stop._id]: true }));
-                          setShowActivityForm(p => ({ ...p, [stop._id]: true }));
+                          setExpandedStops((p) => ({ ...p, [stop._id]: true }));
+                          setShowActivityForm((p) => ({
+                            ...p,
+                            [stop._id]: true,
+                          }));
                         }}
                         className="flex items-center gap-1.5 text-xs text-teal-600 hover:text-teal-700 mt-1 transition"
                       >
@@ -475,13 +693,33 @@ export default function TripDetail() {
             {/* Summary Cards */}
             <div className="grid grid-cols-3 gap-4">
               {[
-                { label: "Total Budget", value: trip.budget || 0, color: "text-gray-800" },
-                { label: "Total Spent", value: totalSpent, color: "text-orange-600" },
-                { label: "Remaining", value: (trip.budget || 0) - totalSpent, color: (trip.budget || 0) - totalSpent < 0 ? "text-red-600" : "text-teal-600" },
+                {
+                  label: "Total Budget",
+                  value: trip.budget || 0,
+                  color: "text-gray-800",
+                },
+                {
+                  label: "Total Spent",
+                  value: totalSpent,
+                  color: "text-orange-600",
+                },
+                {
+                  label: "Remaining",
+                  value: (trip.budget || 0) - totalSpent,
+                  color:
+                    (trip.budget || 0) - totalSpent < 0
+                      ? "text-red-600"
+                      : "text-teal-600",
+                },
               ].map(({ label, value, color }) => (
-                <div key={label} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                <div
+                  key={label}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+                >
                   <p className="text-xs text-gray-400 mb-1">{label}</p>
-                  <p className={`text-xl font-bold ${color}`}>₹{value.toLocaleString("en-IN")}</p>
+                  <p className={`text-xl font-bold ${color}`}>
+                    ₹{value.toLocaleString("en-IN")}
+                  </p>
                 </div>
               ))}
             </div>
@@ -491,14 +729,21 @@ export default function TripDetail() {
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                 <div className="flex justify-between text-xs text-gray-500 mb-2">
                   <span>Budget Used</span>
-                  <span>{Math.min(100, Math.round((totalSpent / trip.budget) * 100))}%</span>
+                  <span>
+                    {Math.min(
+                      100,
+                      Math.round((totalSpent / trip.budget) * 100),
+                    )}
+                    %
+                  </span>
                 </div>
                 <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
                       width: `${Math.min(100, (totalSpent / trip.budget) * 100)}%`,
-                      backgroundColor: totalSpent > trip.budget ? "#ef4444" : "#2A9D8F",
+                      backgroundColor:
+                        totalSpent > trip.budget ? "#ef4444" : "#2A9D8F",
                     }}
                   />
                 </div>
@@ -507,23 +752,38 @@ export default function TripDetail() {
 
             {/* Per Stop Breakdown */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-              <h3 className="font-semibold text-gray-800 mb-4 text-sm">Breakdown by Stop</h3>
+              <h3 className="font-semibold text-gray-800 mb-4 text-sm">
+                Breakdown by Stop
+              </h3>
               {stops.length === 0 ? (
                 <p className="text-sm text-gray-400">No stops added yet.</p>
               ) : (
                 <div className="space-y-3">
                   {stops.map((stop) => {
-                    const actCost = (activities[stop._id] || []).reduce((a, act) => a + (act.cost || 0), 0);
+                    const actCost = (activities[stop._id] || []).reduce(
+                      (a, act) => a + (act.cost || 0),
+                      0,
+                    );
                     const total = (stop.totalCost || 0) + actCost;
                     return (
-                      <div key={stop._id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                      <div
+                        key={stop._id}
+                        className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0"
+                      >
                         <div>
-                          <p className="text-sm font-medium text-gray-700">{stop.city}{stop.country ? `, ${stop.country}` : ""}</p>
+                          <p className="text-sm font-medium text-gray-700">
+                            {stop.city}
+                            {stop.country ? `, ${stop.country}` : ""}
+                          </p>
                           <p className="text-xs text-gray-400">
-                            Stop: ₹{(stop.totalCost || 0).toLocaleString("en-IN")} · Activities: ₹{actCost.toLocaleString("en-IN")}
+                            Stop: ₹
+                            {(stop.totalCost || 0).toLocaleString("en-IN")} ·
+                            Activities: ₹{actCost.toLocaleString("en-IN")}
                           </p>
                         </div>
-                        <p className="text-sm font-semibold text-gray-800">₹{total.toLocaleString("en-IN")}</p>
+                        <p className="text-sm font-semibold text-gray-800">
+                          ₹{total.toLocaleString("en-IN")}
+                        </p>
                       </div>
                     );
                   })}
@@ -543,18 +803,32 @@ export default function TripDetail() {
                   className="input-field flex-1"
                   placeholder="Add item (e.g. Passport)"
                   value={newItem}
-                  onChange={e => setNewItem(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && addPackingItem()}
+                  onChange={(e) => setNewItem(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addPackingItem()}
                 />
-                <select className="input-field w-36"
+                <select
+                  className="input-field w-36"
                   value={newCategory}
-                  onChange={e => setNewCategory(e.target.value)}>
-                  {["General", "Clothes", "Electronics", "Documents", "Toiletries", "Medicine", "Other"].map(c => (
-                    <option key={c}>{c}</option>
+                  onChange={(e) => setNewCategory(e.target.value)}
+                >
+                  {[
+                    "other",
+                    "clothing",
+                    "electronics",
+                    "documents",
+                    "toiletries",
+                    "medicine",
+                  ].map((c) => (
+                    <option key={c} value={c}>
+                      {c.charAt(0).toUpperCase() + c.slice(1)}
+                    </option>
                   ))}
                 </select>
-                <button onClick={addPackingItem}
-                  className="px-4 py-2 rounded-lg text-white text-sm font-medium" style={{ backgroundColor: "#2A9D8F" }}>
+                <button
+                  onClick={addPackingItem}
+                  className="px-4 py-2 rounded-lg text-white text-sm font-medium"
+                  style={{ backgroundColor: "#2A9D8F" }}
+                >
                   <Plus size={16} />
                 </button>
               </div>
@@ -573,28 +847,44 @@ export default function TripDetail() {
                   if (!acc[cat]) acc[cat] = [];
                   acc[cat].push(item);
                   return acc;
-                }, {})
+                }, {}),
               ).map(([cat, items]) => (
-                <div key={cat} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div
+                  key={cat}
+                  className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+                >
                   <div className="px-5 py-3 border-b border-gray-50">
                     <p className="text-sm font-semibold text-gray-700">{cat}</p>
-                    <p className="text-xs text-gray-400">{items.filter(i => i.packed).length}/{items.length} packed</p>
+                    <p className="text-xs text-gray-400">
+                      {items.filter((i) => i.isPacked).length}/{items.length}{" "}
+                      packed
+                    </p>
                   </div>
                   <div className="divide-y divide-gray-50">
                     {items.map((item) => (
-                      <div key={item._id} className="flex items-center justify-between px-5 py-3">
+                      <div
+                        key={item._id}
+                        className="flex items-center justify-between px-5 py-3"
+                      >
                         <label className="flex items-center gap-3 cursor-pointer flex-1">
                           <input
                             type="checkbox"
-                            checked={item.packed}
-                            onChange={() => togglePackingItem(item._id, item.packed)}
+                            checked={item.isPacked}
+                            onChange={() =>
+                              togglePackingItem(item._id, item.isPacked)
+                            }
                             className="w-4 h-4 rounded accent-teal-500"
                           />
-                          <span className={`text-sm ${item.packed ? "line-through text-gray-400" : "text-gray-700"}`}>
-                            {item.item}
+                          <span
+                            className={`text-sm ${item.isPacked ? "line-through text-gray-400" : "text-gray-700"}`}
+                          >
+                            {item.name}
                           </span>
                         </label>
-                        <button onClick={() => deletePackingItem(item._id)} className="text-gray-300 hover:text-red-400 transition">
+                        <button
+                          onClick={() => deletePackingItem(item._id)}
+                          className="text-gray-300 hover:text-red-400 transition"
+                        >
                           <Trash2 size={14} />
                         </button>
                       </div>
@@ -611,7 +901,8 @@ export default function TripDetail() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="font-semibold text-gray-800 flex items-center gap-2">
-                <FileText size={16} className="text-teal-500" /> Trip Notes & Journal
+                <FileText size={16} className="text-teal-500" /> Trip Notes &
+                Journal
               </h2>
               <button
                 onClick={() => setShowNoteForm(!showNoteForm)}
@@ -624,17 +915,43 @@ export default function TripDetail() {
 
             {showNoteForm && (
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 space-y-3">
-                <input className="input-field w-full" placeholder="Title *"
-                  value={noteForm.title} onChange={e => setNoteForm({ ...noteForm, title: e.target.value })} />
-                <textarea className="input-field w-full resize-none" rows={4} placeholder="Write your note..."
-                  value={noteForm.content} onChange={e => setNoteForm({ ...noteForm, content: e.target.value })} />
-                <input type="date" className="input-field w-full"
-                  value={noteForm.date} onChange={e => setNoteForm({ ...noteForm, date: e.target.value })} />
+                <input
+                  className="input-field w-full"
+                  placeholder="Title *"
+                  value={noteForm.title}
+                  onChange={(e) =>
+                    setNoteForm({ ...noteForm, title: e.target.value })
+                  }
+                />
+                <textarea
+                  className="input-field w-full resize-none"
+                  rows={4}
+                  placeholder="Write your note..."
+                  value={noteForm.content}
+                  onChange={(e) =>
+                    setNoteForm({ ...noteForm, content: e.target.value })
+                  }
+                />
+                <input
+                  type="date"
+                  className="input-field w-full"
+                  value={noteForm.date}
+                  onChange={(e) =>
+                    setNoteForm({ ...noteForm, date: e.target.value })
+                  }
+                />
                 <div className="flex gap-2 justify-end">
-                  <button onClick={() => setShowNoteForm(false)}
-                    className="text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600">Cancel</button>
-                  <button onClick={addNote}
-                    className="text-sm px-4 py-1.5 rounded-lg text-white" style={{ backgroundColor: "#2A9D8F" }}>
+                  <button
+                    onClick={() => setShowNoteForm(false)}
+                    className="text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-600"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={addNote}
+                    className="text-sm px-4 py-1.5 rounded-lg text-white"
+                    style={{ backgroundColor: "#2A9D8F" }}
+                  >
                     Save Note
                   </button>
                 </div>
@@ -649,21 +966,37 @@ export default function TripDetail() {
             ) : (
               <div className="space-y-3">
                 {notes.map((note) => (
-                  <div key={note._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+                  <div
+                    key={note._id}
+                    className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5"
+                  >
                     <div className="flex justify-between items-start mb-2">
-                      <p className="font-semibold text-gray-800">{note.title}</p>
+                      <p className="font-semibold text-gray-800">
+                        {note.title}
+                      </p>
                       <div className="flex items-center gap-2">
                         {note.date && (
                           <span className="text-xs text-gray-400">
-                            {new Date(note.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                            {new Date(note.date).toLocaleDateString("en-IN", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
                           </span>
                         )}
-                        <button onClick={() => deleteNote(note._id)} className="text-gray-300 hover:text-red-400 transition">
+                        <button
+                          onClick={() => deleteNote(note._id)}
+                          className="text-gray-300 hover:text-red-400 transition"
+                        >
                           <Trash2 size={14} />
                         </button>
                       </div>
                     </div>
-                    {note.content && <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{note.content}</p>}
+                    {note.content && (
+                      <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
+                        {note.content}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>
