@@ -15,6 +15,9 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/trips', require('./routes/tripRoutes'));
 app.use('/api/stops', require('./routes/stopRoutes'));
 app.use('/api/activities', require('./routes/activityRoutes'));
+app.use('/api/notes', require('./routes/noteRoutes'));
+app.use('/api/packing', require('./routes/packingRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 app.get('/', (req, res) => res.send('Traveloop API Running'));
 
