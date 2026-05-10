@@ -10,7 +10,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes (we'll add these later)
+// Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/trips', require('./routes/tripRoutes'));
+app.use('/api/stops', require('./routes/stopRoutes'));
+app.use('/api/activities', require('./routes/activityRoutes'));
+
 app.get('/', (req, res) => res.send('Traveloop API Running'));
 
 const PORT = process.env.PORT || 5000;
