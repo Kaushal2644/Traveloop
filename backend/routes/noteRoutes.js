@@ -4,7 +4,7 @@ const { addNote, getNotesByTrip, updateNote, deleteNote } = require('../controll
 const { protect } = require('../middleware/authMiddleware');
 
 router.post('/', protect, addNote);
-router.get('/trip:tripId', protect, getNotesByTrip);
+router.get('/trip/:tripId', protect, getNotesByTrip);
 router.put('/:id', protect, updateNote);
 router.delete('/:id', protect, deleteNote);
 
